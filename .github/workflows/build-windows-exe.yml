@@ -27,20 +27,27 @@ jobs:
       - name: Install Poppler
         run: choco install --no-progress -y poppler
 
-      - name: Install Python dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install pyinstaller pytesseract pdf2image pypdf pillow
-
-      - name: Locate installed Tesseract and Poppler, stage for bundling
+      - name: Refresh PATH and locate installed Tesseract and Poppler, stage for bundling
         shell: pwsh
         run: |
-          $tess = (Get-Command tesseract.exe).Source
+          Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
+          refreshenv
+
+          $tess = (Get-Command tesseract.exe -ErrorAction SilentlyContinue).Source
+          if (-not $tess) {
+            $tess = "C:\Program Files\Tesseract-OCR\tesseract.exe"
+          }
+          if (-not (Test-Path $tess)) { throw "Could not locate tesseract.exe after install" }
           $tessDir = Split-Path $tess
           Write-Host "Tesseract dir: $tessDir"
           Copy-Item -Recurse -Force $tessDir tesseract_bundle
 
-          $pdftoppm = (Get-Command pdftoppm.exe).Source
+          $pdftoppm = (Get-Command pdftoppm.exe -ErrorAction SilentlyContinue).Source
+          if (-not $pdftoppm) {
+            $pdftoppm = Get-ChildItem "C:\ProgramData\chocolatey\lib\poppler" -Recurse -Filter "pdftoppm.exe" -ErrorAction SilentlyContinue |
+              Select-Object -First 1 -ExpandProperty FullName
+          }
+          if (-not $pdftoppm) { throw "Could not locate pdftoppm.exe after install" }
           $popplerDir = Split-Path $pdftoppm
           Write-Host "Poppler bin dir: $popplerDir"
           Copy-Item -Recurse -Force $popplerDir poppler_bin
@@ -49,6 +56,11 @@ jobs:
         shell: pwsh
         run: |
           Remove-Item -Recurse -Force "tesseract_bundle\tessdata" -ErrorAction SilentlyContinue
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyinstaller pytesseract pdf2image pypdf pillow
 
       - name: Build the exe
         shell: pwsh
