@@ -88,6 +88,7 @@ jobs:
           # directly (not the GUI) so CI can assert on the output text
           # without needing to drive the Tk window.
           $env:PYTHONPATH = "."
+          $env:PYTHONUTF8 = "1"
           python -c "
           import sys, os
           sys.path.insert(0, '.')
