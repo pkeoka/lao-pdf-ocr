@@ -118,8 +118,14 @@ def extract_text(
             "TESSDATA_PREFIX to a directory that contains it."
         )
 
+    # Set TESSDATA_PREFIX as an environment variable rather than passing
+    # `--tessdata-dir "<path>"` as a CLI flag: pytesseract splits the config
+    # string with shlex, and on Windows (posix=False) shlex does NOT strip
+    # quote characters — so a quoted path arrives at tesseract.exe with
+    # literal quote marks still in it, corrupting the path. The env var
+    # never goes through that parsing at all.
     os.environ["TESSDATA_PREFIX"] = tessdata_dir
-       config = ""
+    config = ""
 
     reader = PdfReader(pdf_path)
     n_pages = len(reader.pages)
@@ -158,7 +164,7 @@ def make_searchable_pdf(
         sys.exit("Could not find lao.traineddata (see extract_text error above).")
 
     os.environ["TESSDATA_PREFIX"] = tessdata_dir
-       config = ""
+    config = ""
     images = convert_from_path(pdf_path, dpi=dpi, poppler_path=poppler_path)
 
     from pypdf import PdfWriter
