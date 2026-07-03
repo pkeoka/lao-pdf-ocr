@@ -78,3 +78,39 @@ Any time `lao_pdf_ocr.py` or `lao_pdf_ocr_gui.py` changes, just re-upload the
 changed file(s) through the same **Add file → Upload files** flow (this
 automatically triggers a rebuild, since the workflow watches those paths) —
 or re-run the workflow manually from the Actions tab.
+
+## Releases & versioning
+
+Every commit to GitHub is already version control — the full history of
+every change is preserved and can always be inspected or rolled back to,
+whether or not you do anything else. What tagged **Releases** add on top
+of that is a clear, stable signpost for anyone downloading the app: "this
+specific point in history is the one that's tested and works," rather than
+them having to guess which commit in the history is good.
+
+This matters more once a repo is public: the commit history includes every
+intermediate step taken to get the Windows build working (including a few
+that didn't work yet), which is genuinely useful as a debugging record but
+isn't what a random visitor wants to download.
+
+**To cut a release, once a build has gone green:**
+
+1. Go to the **Releases** section (right-hand sidebar on the repo's main
+   page, or `/releases` in the URL).
+2. Click **Create a new release** / **Draft a new release**.
+3. Under "Choose a tag," type a version number — `v1.0.0` for the first
+   release. This project follows [Semantic Versioning](https://semver.org/):
+   increment the last number for a bug fix (`v1.0.1`), the middle number
+   for a new feature that doesn't break existing usage (`v1.1.0`), and the
+   first number for a breaking change (`v2.0.0`).
+4. Give it a title and paste in the relevant section from `CHANGELOG.md`
+   as the description.
+5. Download `LaoPdfOcr.exe` from the successful Actions run's Artifacts
+   (as in "Running the build" above), and drag it into the release's
+   **Attach binaries** box. This is what makes the exe downloadable
+   directly from the Releases page, instead of visitors needing to know
+   to go dig through the Actions tab.
+6. Click **Publish release**.
+
+After that, `CHANGELOG.md`'s `[Unreleased]` section is where new changes
+get logged until the next release is cut.
