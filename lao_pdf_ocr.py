@@ -118,7 +118,8 @@ def extract_text(
             "TESSDATA_PREFIX to a directory that contains it."
         )
 
-    config = f'--tessdata-dir "{tessdata_dir}"'
+    os.environ["TESSDATA_PREFIX"] = tessdata_dir
+       config = ""
 
     reader = PdfReader(pdf_path)
     n_pages = len(reader.pages)
@@ -156,7 +157,8 @@ def make_searchable_pdf(
     if tessdata_dir is None:
         sys.exit("Could not find lao.traineddata (see extract_text error above).")
 
-    config = f'--tessdata-dir "{tessdata_dir}"'
+    os.environ["TESSDATA_PREFIX"] = tessdata_dir
+       config = ""
     images = convert_from_path(pdf_path, dpi=dpi, poppler_path=poppler_path)
 
     from pypdf import PdfWriter
